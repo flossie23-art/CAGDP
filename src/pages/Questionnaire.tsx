@@ -24,18 +24,18 @@ export default function Questionnaire() {
 
   const categoryQuestions = questionnaireQuestions.filter(q => q.category === currentCategory)
 
-  const handleToggle = (option: string) => {
-    const current = answers[categoryQuestions[0]?.id || ''] || []
-    const question = categoryQuestions[0]
+  const handleToggle = (questionId: string, option: string) => {
+    const question = questionnaireQuestions.find(q => q.id === questionId)
     if (!question) return
 
     if (question.type === 'single') {
-      updateAnswers(question.id, [option])
+      updateAnswers(questionId, [option])
     } else {
+      const current = answers[questionId] || []
       const updated = current.includes(option)
         ? current.filter(o => o !== option)
         : [...current, option]
-      updateAnswers(question.id, updated)
+      updateAnswers(questionId, updated)
     }
   }
 
@@ -83,7 +83,7 @@ export default function Questionnaire() {
                 question={question.question}
                 options={question.options}
                 selectedOptions={answers[question.id] || []}
-                onToggle={handleToggle}
+                onToggle={(option) => handleToggle(question.id, option)}
                 questionType={question.type}
                 minSelections={question.minSelections}
               />

@@ -15,7 +15,7 @@ export default function QuestionCard({ question, options, selectedOptions, onTog
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <h3 style={{ fontWeight: 600, fontSize: '1.125rem' }}>{question}</h3>
         {minSelections && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-error)', fontWeight: 600 }}>
             Select at least {minSelections}
           </span>
         )}
