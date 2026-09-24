@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
-import { QuestionnaireAnswers } from '../types'
+import { QuestionnaireAnswers, QuestionnaireQuestion } from '../types'
 import { calculateRecommendations } from '../services/recommendationEngine'
 import { RecommendationResult } from '../types'
+import { questionnaireQuestions } from '../data/questions'
 
 const QUESTIONNAIRE_CATEGORIES = ['Interest', 'Strengths', 'Subjects', 'Work Preferences', 'Career Goals']
 
@@ -49,6 +50,17 @@ export function useQuestionnaire() {
 
   const progress = ((currentStep + 1) / totalSteps) * 100
 
+  const canProceed = useCallback(() => {
+    const questions = questionnaireQuestions.filter(q => q.category === currentCategory)
+    for (const question of questions) {
+      if (question.minSelections && question.type === 'multiple') {
+        const selected = answers[question.id] || []
+        if (selected.length < question.minSelections) return false
+      }
+    }
+    return true
+  }, [answers, currentCategory])
+
   return {
     answers,
     currentStep,
@@ -62,5 +74,6 @@ export function useQuestionnaire() {
     prevStep,
     submitQuestionnaire,
     resetQuestionnaire,
+    canProceed,
   }
 }

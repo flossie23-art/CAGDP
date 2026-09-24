@@ -6,12 +6,20 @@ interface QuestionCardProps {
   selectedOptions: string[]
   onToggle: (option: string) => void
   questionType: 'single' | 'multiple'
+  minSelections?: number
 }
 
-export default function QuestionCard({ question, options, selectedOptions, onToggle, questionType }: QuestionCardProps) {
+export default function QuestionCard({ question, options, selectedOptions, onToggle, questionType, minSelections }: QuestionCardProps) {
   return (
     <div className="card">
-      <h3 style={{ fontWeight: 600, marginBottom: '1rem', fontSize: '1.125rem' }}>{question}</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h3 style={{ fontWeight: 600, fontSize: '1.125rem' }}>{question}</h3>
+        {minSelections && (
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 500 }}>
+            Select at least {minSelections}
+          </span>
+        )}
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {options.map(option => {
           const isSelected = selectedOptions.includes(option)
@@ -39,10 +47,18 @@ export default function QuestionCard({ question, options, selectedOptions, onTog
                 aria-label={option}
               />
               <span style={{ fontWeight: 500 }}>{option}</span>
+              {isSelected && (
+                <span style={{ marginLeft: 'auto', fontSize: '0.875rem' }}>✓</span>
+              )}
             </label>
           )
         })}
       </div>
+      {minSelections && (
+        <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+          {selectedOptions.length}/{options.length} selected
+        </div>
+      )}
     </div>
   )
 }

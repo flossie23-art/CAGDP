@@ -17,6 +17,7 @@ export default function Questionnaire() {
     nextStep,
     prevStep,
     submitQuestionnaire,
+    canProceed,
   } = useQuestionnaire()
 
   const navigate = useNavigate()
@@ -40,12 +41,13 @@ export default function Questionnaire() {
 
   const isFirstStep = currentStep === 0
   const isLastStep = currentStep === totalSteps - 1
+  const canProceedNow = canProceed()
 
   const handleContinue = () => {
     if (isLastStep) {
       const results = submitQuestionnaire()
       navigate('/results')
-    } else {
+    } else if (canProceedNow) {
       nextStep()
     }
   }
@@ -83,9 +85,15 @@ export default function Questionnaire() {
                 selectedOptions={answers[question.id] || []}
                 onToggle={handleToggle}
                 questionType={question.type}
+                minSelections={question.minSelections}
               />
             ))}
           </div>
+          {!canProceedNow && categoryQuestions.some(q => q.minSelections) && (
+            <p style={{ color: 'var(--color-error)', fontSize: '0.875rem', marginTop: '0.5rem', fontWeight: 600 }}>
+              ⚠️ Please select at least {categoryQuestions.find(q => q.minSelections)?.minSelections} items before continuing
+            </p>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
             <button
               className="btn btn-outline"
@@ -95,7 +103,15 @@ export default function Questionnaire() {
             >
               Back
             </button>
-            <button className="btn btn-primary" onClick={handleContinue}>
+            <button
+              className="btn btn-primary"
+              onClick={handleContinue}
+              disabled={!canProceedNow && !isLastStep}
+              style={{
+                opacity: canProceedNow || isLastStep ? 1 : 0.5,
+                cursor: canProceedNow || isLastStep ? 'pointer' : 'not-allowed',
+              }}
+            >
               {isLastStep ? 'Submit & See Results' : 'Continue'}
             </button>
           </div>

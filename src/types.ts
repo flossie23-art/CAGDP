@@ -11,6 +11,15 @@ export interface User {
   savedOpportunities: string[]
 }
 
+export interface QuestionnaireQuestion {
+  id: string
+  category: string
+  question: string
+  options: string[]
+  type: 'single' | 'multiple'
+  minSelections?: number
+}
+
 export interface QuestionnaireAnswers {
   [questionId: string]: string[]
 }

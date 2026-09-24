@@ -4,6 +4,7 @@ export interface QuestionnaireQuestion {
   question: string
   options: string[]
   type: 'single' | 'multiple'
+  minSelections?: number
 }
 
 export const questionnaireQuestions: QuestionnaireQuestion[] = [
@@ -48,6 +49,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which subjects do you enjoy?',
     options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
     type: 'multiple',
+    minSelections: 3,
   },
   {
     id: 'subject-2',
@@ -55,6 +57,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which subjects do you perform well in?',
     options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
     type: 'multiple',
+    minSelections: 3,
   },
   {
     id: 'subject-3',
@@ -62,6 +65,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which subjects do you want to study further?',
     options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
     type: 'multiple',
+    minSelections: 3,
   },
   {
     id: 'work-1',
