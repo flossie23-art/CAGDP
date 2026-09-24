@@ -89,6 +89,7 @@ export default function Questionnaire() {
                 onToggle={(option) => handleToggle(question.id, option)}
                 questionType={question.type}
                 minSelections={question.minSelections}
+                maxSelections={question.maxSelections}
               />
             ))}
           </div>
