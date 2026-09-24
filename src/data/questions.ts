@@ -1,0 +1,157 @@
+export interface QuestionnaireQuestion {
+  id: string
+  category: string
+  question: string
+  options: string[]
+  type: 'single' | 'multiple'
+}
+
+export const questionnaireQuestions: QuestionnaireQuestion[] = [
+  {
+    id: 'interest-1',
+    category: 'Interest',
+    question: 'Which subjects do you enjoy the most?',
+    options: ['Mathematics', 'Computer Science', 'Physics', 'Chemistry', 'Biology', 'English', 'Economics', 'Government', 'Geography', 'Literature', 'Arts', 'Agricultural Science', 'Technical Drawing', 'Accounting'],
+    type: 'multiple',
+  },
+  {
+    id: 'interest-2',
+    category: 'Interest',
+    question: 'What activities do you naturally enjoy?',
+    options: ['Solving puzzles and problems', 'Building or creating things', 'Reading and researching', 'Working with technology', 'Helping others', 'Designing or drawing', 'Working with numbers', 'Writing or storytelling', 'Leading or organizing', 'Working outdoors'],
+    type: 'multiple',
+  },
+  {
+    id: 'interest-3',
+    category: 'Interest',
+    question: 'What topics do you naturally research or learn about in your free time?',
+    options: ['Technology and gadgets', 'Science and nature', 'Business and finance', 'Arts and culture', 'Health and medicine', 'Law and politics', 'Mathematics and logic', 'Design and creativity', 'Sports and fitness', 'History and society'],
+    type: 'multiple',
+  },
+  {
+    id: 'strength-1',
+    category: 'Strengths',
+    question: 'Which of these best describes your strengths?',
+    options: ['Problem solving', 'Communication', 'Creativity', 'Leadership', 'Organization', 'Numerical reasoning', 'Critical thinking', 'Teamwork', 'Writing', 'Technical thinking', 'Practical/manual skills', 'Attention to detail'],
+    type: 'multiple',
+  },
+  {
+    id: 'strength-2',
+    category: 'Strengths',
+    question: 'When faced with a challenge, what is your natural approach?',
+    options: ['Analyze the problem systematically', 'Brainstorm creative solutions', 'Ask others for help', 'Break it down into smaller steps', 'Try different approaches until one works', 'Research how others have solved similar problems'],
+    type: 'multiple',
+  },
+  {
+    id: 'subject-1',
+    category: 'Subjects',
+    question: 'Which subjects do you enjoy?',
+    options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
+    type: 'multiple',
+  },
+  {
+    id: 'subject-2',
+    category: 'Subjects',
+    question: 'Which subjects do you perform well in?',
+    options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
+    type: 'multiple',
+  },
+  {
+    id: 'subject-3',
+    category: 'Subjects',
+    question: 'Which subjects do you want to study further?',
+    options: ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Government', 'Geography', 'Literature', 'Accounting', 'Agricultural Science', 'Technical Drawing', 'Arts'],
+    type: 'multiple',
+  },
+  {
+    id: 'work-1',
+    category: 'Work Preferences',
+    question: 'Do you prefer working with people or technology?',
+    options: ['People', 'Technology', 'Both equally', 'Neither - I prefer working independently'],
+    type: 'single',
+  },
+  {
+    id: 'work-2',
+    category: 'Work Preferences',
+    question: 'Do you prefer practical or theoretical work?',
+    options: ['Practical/Hands-on', 'Theoretical/Conceptual', 'Both equally', 'It depends on the task'],
+    type: 'single',
+  },
+  {
+    id: 'work-3',
+    category: 'Work Preferences',
+    question: 'Do you prefer independent or team-based work?',
+    options: ['Independent', 'Team-based', 'Both equally', 'It depends on the project'],
+    type: 'single',
+  },
+  {
+    id: 'work-4',
+    category: 'Work Preferences',
+    question: 'Do you prefer indoor or outdoor work?',
+    options: ['Indoor', 'Outdoor', 'Both equally', 'It depends on the task'],
+    type: 'single',
+  },
+  {
+    id: 'work-5',
+    category: 'Work Preferences',
+    question: 'Do you enjoy solving structured problems?',
+    options: ['Yes, very much', 'Sometimes', 'Not really', 'I prefer open-ended challenges'],
+    type: 'single',
+  },
+  {
+    id: 'work-6',
+    category: 'Work Preferences',
+    question: 'Do you enjoy creating things?',
+    options: ['Yes, very much', 'Sometimes', 'Not really', 'I prefer working with existing systems'],
+    type: 'single',
+  },
+  {
+    id: 'goal-1',
+    category: 'Career Goals',
+    question: 'What type of career interests you?',
+    options: ['Technology', 'Healthcare', 'Business/Finance', 'Engineering', 'Education', 'Arts/Design', 'Law', 'Agriculture', 'Science/Research', 'Media/Communication'],
+    type: 'multiple',
+  },
+  {
+    id: 'goal-2',
+    category: 'Career Goals',
+    question: 'What industries interest you?',
+    options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Government', 'Agriculture', 'Manufacturing', 'Media', 'Consulting', 'Non-profit'],
+    type: 'multiple',
+  },
+  {
+    id: 'goal-3',
+    category: 'Career Goals',
+    question: 'Do you want to start working quickly after school?',
+    options: ['Yes, as soon as possible', 'Within a few years', 'After university', 'I\'m not sure yet'],
+    type: 'single',
+  },
+  {
+    id: 'goal-4',
+    category: 'Career Goals',
+    question: 'Are you interested in university education?',
+    options: ['Yes, definitely', 'Maybe', 'Not sure', 'No, I prefer other paths'],
+    type: 'single',
+  },
+  {
+    id: 'goal-5',
+    category: 'Career Goals',
+    question: 'Are you interested in technical/vocational training?',
+    options: ['Yes, definitely', 'Maybe', 'Not sure', 'No, I prefer university'],
+    type: 'single',
+  },
+  {
+    id: 'goal-6',
+    category: 'Career Goals',
+    question: 'Would you consider remote work?',
+    options: ['Yes, definitely', 'Maybe', 'Prefer in-person', 'It depends on the job'],
+    type: 'single',
+  },
+  {
+    id: 'goal-7',
+    category: 'Career Goals',
+    question: 'Are you interested in entrepreneurship?',
+    options: ['Yes, definitely', 'Maybe', 'Not sure', 'No, I prefer working for others'],
+    type: 'single',
+  },
+]
