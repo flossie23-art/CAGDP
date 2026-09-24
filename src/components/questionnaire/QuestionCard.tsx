@@ -7,16 +7,17 @@ interface QuestionCardProps {
   onToggle: (option: string) => void
   questionType: 'single' | 'multiple'
   minSelections?: number
+  maxSelections?: number
 }
 
-export default function QuestionCard({ question, options, selectedOptions, onToggle, questionType, minSelections }: QuestionCardProps) {
+export default function QuestionCard({ question, options, selectedOptions, onToggle, questionType, minSelections, maxSelections }: QuestionCardProps) {
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <h3 style={{ fontWeight: 600, fontSize: '1.125rem' }}>{question}</h3>
         {minSelections && (
           <span style={{ fontSize: '0.75rem', color: 'var(--color-error)', fontWeight: 600 }}>
-            Select at least {minSelections}
+            Select {minSelections}{maxSelections ? `-${maxSelections}` : '+'}
           </span>
         )}
       </div>
@@ -54,11 +55,11 @@ export default function QuestionCard({ question, options, selectedOptions, onTog
           )
         })}
       </div>
-      {minSelections && (
-        <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-muted)' }}>
-          {selectedOptions.length}/{options.length} selected
-        </div>
-      )}
+{minSelections && (
+          <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+            {selectedOptions.length}/{maxSelections || options.length} selected
+          </div>
+        )}
     </div>
   )
 }

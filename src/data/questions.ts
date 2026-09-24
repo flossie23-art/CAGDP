@@ -14,6 +14,8 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which subjects do you enjoy the most?',
     options: ['Mathematics', 'Computer Science', 'Physics', 'Chemistry', 'Biology', 'English', 'Economics', 'Government', 'Geography', 'Literature', 'Arts', 'Agricultural Science', 'Technical Drawing', 'Accounting'],
     type: 'multiple',
+    minSelections: 3,
+    maxSelections: 5,
   },
   {
     id: 'interest-2',
@@ -21,6 +23,8 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What activities do you naturally enjoy?',
     options: ['Solving puzzles and problems', 'Building or creating things', 'Reading and researching', 'Working with technology', 'Helping others', 'Designing or drawing', 'Working with numbers', 'Writing or storytelling', 'Leading or organizing', 'Working outdoors'],
     type: 'multiple',
+    minSelections: 3,
+    maxSelections: 5,
   },
   {
     id: 'interest-3',
@@ -28,6 +32,8 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What topics do you naturally research or learn about in your free time?',
     options: ['Technology and gadgets', 'Science and nature', 'Business and finance', 'Arts and culture', 'Health and medicine', 'Law and politics', 'Mathematics and logic', 'Design and creativity', 'Sports and fitness', 'History and society'],
     type: 'multiple',
+    minSelections: 3,
+    maxSelections: 5,
   },
   {
     id: 'strength-1',

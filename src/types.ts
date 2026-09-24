@@ -18,6 +18,7 @@ export interface QuestionnaireQuestion {
   options: string[]
   type: 'single' | 'multiple'
   minSelections?: number
+  maxSelections?: number
 }
 
 export interface QuestionnaireAnswers {

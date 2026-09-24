@@ -32,10 +32,13 @@ export default function Questionnaire() {
       updateAnswers(questionId, [option])
     } else {
       const current = answers[questionId] || []
-      const updated = current.includes(option)
-        ? current.filter(o => o !== option)
-        : [...current, option]
-      updateAnswers(questionId, updated)
+      if (current.includes(option)) {
+        updateAnswers(questionId, current.filter(o => o !== option))
+      } else if (question.maxSelections && current.length >= question.maxSelections) {
+        return
+      } else {
+        updateAnswers(questionId, [...current, option])
+      }
     }
   }
 
@@ -91,7 +94,13 @@ export default function Questionnaire() {
           </div>
           {!canProceedNow && categoryQuestions.some(q => q.minSelections) && (
             <p style={{ color: 'var(--color-error)', fontSize: '0.875rem', marginTop: '0.5rem', fontWeight: 600 }}>
-              ⚠️ Please select at least {categoryQuestions.find(q => q.minSelections)?.minSelections} items before continuing
+              ⚠️ Please select at least {categoryQuestions.find(q => q.minSelections)?.minSelections}
+              {categoryQuestions.find(q => q.maxSelections) ? ` and at most ${categoryQuestions.find(q => q.maxSelections)?.maxSelections}` : ''} items before continuing
+            </p>
+          )}
+          {categoryQuestions.some(q => q.maxSelections) && canProceedNow && (
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+              ✓ Selection complete
             </p>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>

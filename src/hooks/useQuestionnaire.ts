@@ -53,9 +53,10 @@ export function useQuestionnaire() {
   const canProceed = useCallback(() => {
     const questions = questionnaireQuestions.filter(q => q.category === currentCategory)
     for (const question of questions) {
-      if (question.minSelections && question.type === 'multiple') {
+      if (question.type === 'multiple') {
         const selected = answers[question.id] || []
-        if (selected.length < question.minSelections) return false
+        if (question.minSelections && selected.length < question.minSelections) return false
+        if (question.maxSelections && selected.length > question.maxSelections) return false
       }
     }
     return true
