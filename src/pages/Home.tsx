@@ -1,20 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
 import { careers } from '../data/careers'
 import { courses } from '../data/courses'
 import { scholarships } from '../data/scholarships'
 import { onlineCourses } from '../data/onlineCourses'
 
 export default function Home() {
-  const { isGuest, login } = useAuth()
-
-  const handleGetStarted = () => {
-    if (isGuest) {
-      login('Guest User', 'guest@example.com')
-    }
-  }
-
   return (
     <div>
       {/* Hero Section */}

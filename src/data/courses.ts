@@ -1,16 +1,6 @@
-export interface Course {
-  id: string
-  name: string
-  slug: string
-  description: string
-  field: string
-  subjects: string[]
-  careerPaths: string[]
-  institutions: string[]
-  entryRequirements: string
-  duration: string
-  qualification: string
-}
+import type { Course } from '../types'
+
+export type { Course }
 
 export const courses: Course[] = [
   {

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { institutions } from '../data/institutions'
 import { useAuth } from '../contexts/AuthContext'
 import InstitutionCard from '../components/institution/InstitutionCard'
-import { Institution } from '../types'
 
 export default function Institutions() {
   const { saveItem, isSaved } = useAuth()
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
 
@@ -51,7 +52,7 @@ export default function Institutions() {
           <InstitutionCard
             key={institution.id}
             institution={institution}
-            onExplore={(i) => window.location.href = `/institutions/${i.id}`}
+            onExplore={i => navigate(`/institutions/${i.id}`)}
             onSave={(id) => saveItem('institution', id)}
             isSaved={isSaved('institution', institution.id)}
           />

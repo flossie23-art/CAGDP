@@ -1,14 +1,6 @@
-export interface Institution {
-  id: string
-  name: string
-  slug: string
-  type: 'University' | 'Polytechnic' | 'College' | 'Technical Institution' | 'Vocational Training Centre'
-  location: string
-  website: string
-  courses: string[]
-  admissionInformation: string
-  accreditationInformation: string
-}
+import type { Institution } from '../types'
+
+export type { Institution }
 
 export const institutions: Institution[] = [
   {

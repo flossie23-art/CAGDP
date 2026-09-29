@@ -1,14 +1,6 @@
-export interface OnlineCourse {
-  id: string
-  title: string
-  provider: string
-  description: string
-  skillArea: string
-  level: 'Beginner' | 'Intermediate' | 'Advanced'
-  duration: string
-  price: string
-  url: string
-}
+import type { OnlineCourse } from '../types'
+
+export type { OnlineCourse }
 
 export const onlineCourses: OnlineCourse[] = [
   {

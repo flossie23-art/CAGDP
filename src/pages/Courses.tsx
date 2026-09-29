@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { courses } from '../data/courses'
 import { useAuth } from '../contexts/AuthContext'
 import CourseCard from '../components/course/CourseCard'
-import { Course } from '../types'
 import { filterCourses } from '../services/searchService'
 
 export default function Courses() {
   const { saveItem, isSaved } = useAuth()
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('')
   const [fieldFilter, setFieldFilter] = useState('')
 
@@ -52,7 +53,7 @@ export default function Courses() {
           <CourseCard
             key={course.id}
             course={course}
-            onExplore={(c) => window.location.href = `/courses/${c.id}`}
+            onExplore={c => navigate(`/courses/${c.id}`)}
             onSave={(id) => saveItem('course', id)}
             isSaved={isSaved('course', course.id)}
           />

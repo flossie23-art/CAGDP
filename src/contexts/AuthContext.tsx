@@ -1,13 +1,23 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import { User } from '../types'
 
+export type SaveCategory = 'career' | 'course' | 'institution' | 'scholarship' | 'opportunity'
+
+const SAVE_KEYS = {
+  career: 'savedCareers',
+  course: 'savedCourses',
+  institution: 'savedInstitutions',
+  scholarship: 'savedScholarships',
+  opportunity: 'savedOpportunities',
+} as const satisfies Record<SaveCategory, keyof User>
+
 interface AuthContextType {
   user: User | null
   isGuest: boolean
   login: (name: string, email: string) => User
   logout: () => void
-  saveItem: (category: string, id: string) => void
-  isSaved: (category: string, id: string) => boolean
+  saveItem: (category: SaveCategory, id: string) => void
+  isSaved: (category: SaveCategory, id: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -38,28 +48,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsGuest(true)
   }, [])
 
-  const saveItem = useCallback((category: string, id: string) => {
+  const saveItem = useCallback((category: SaveCategory, id: string) => {
     setUser(prev => {
       if (!prev) return prev
-      const newUser = { ...prev }
-      const key = `saved${category.charAt(0).toUpperCase() + category.slice(1)}` as keyof User
-      if (key === 'savedOpportunities') {
-        newUser.savedOpportunities = [...newUser.savedOpportunities, id]
-      } else {
-        const arr = newUser[key] as string[]
-        if (!arr.includes(id)) {
-          newUser[key] = [...arr, id]
-        }
-      }
-      return newUser
+      const key = SAVE_KEYS[category]
+      if (prev[key].includes(id)) return prev
+      return { ...prev, [key]: [...prev[key], id] }
     })
   }, [])
 
-  const isSaved = useCallback((category: string, id: string): boolean => {
+  const isSaved = useCallback((category: SaveCategory, id: string): boolean => {
     if (!user) return false
-    const key = `saved${category.charAt(0).toUpperCase() + category.slice(1)}` as keyof User
-    const arr = user[key] as string[]
-    return arr.includes(id)
+    return user[SAVE_KEYS[category]].includes(id)
   }, [user])
 
   return (

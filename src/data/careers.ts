@@ -1,21 +1,6 @@
-export interface Career {
-  id: string
-  name: string
-  slug: string
-  description: string
-  industry: string
-  requiredSkills: string[]
-  recommendedSubjects: string[]
-  recommendedInterests: string[]
-  recommendedStrengths: string[]
-  relatedCourses: string[]
-  educationRequirements: string
-  entryPaths: string[]
-  workEnvironment: string
-  salaryInformation: string
-  growthInformation: string
-  resources: string[]
-}
+import type { Career } from '../types'
+
+export type { Career }
 
 export const careers: Career[] = [
   {

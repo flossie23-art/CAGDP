@@ -73,6 +73,76 @@ button {
   }
 }
 
+.option-fieldset {
+  border-width: 2px;
+}
+
+.question-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.option-label:hover {
+  border-color: var(--color-primary);
+}
+
+.option-label:focus-within {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.option-label[data-selected] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.option-label[data-disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.option-indicator {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 2px solid var(--color-muted);
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.option-indicator[data-shape='round'] {
+  border-radius: 50%;
+}
+
+.option-label[data-selected] .option-indicator {
+  border-color: white;
+  background: white;
+}
+
 .progress-bar {
   height: 8px;
   background: var(--color-border);

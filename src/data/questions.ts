@@ -1,10 +1,17 @@
-export interface QuestionnaireQuestion {
-  id: string
-  category: string
-  question: string
-  options: string[]
-  type: 'single' | 'multiple'
-  minSelections?: number
+import type { CategorySelectionLimit, QuestionnaireCategory, QuestionnaireQuestion } from '../types'
+import { QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY } from '../types'
+
+export { QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY }
+export type { CategorySelectionLimit, QuestionnaireCategory, QuestionnaireQuestion }
+
+/**
+ * Selection budgets that apply to a whole step rather than to one question.
+ * The Interest step asks for 3-5 interests in total across its three questions,
+ * so each question only needs a single answer and the step-level budget
+ * enforces the overall 3-5 range.
+ */
+export const CATEGORY_SELECTION_LIMITS: Partial<Record<QuestionnaireCategory, CategorySelectionLimit>> = {
+  Interest: { min: 3, max: 5, label: 'interests' },
 }
 
 export const questionnaireQuestions: QuestionnaireQuestion[] = [
@@ -14,8 +21,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which subjects do you enjoy the most?',
     options: ['Mathematics', 'Computer Science', 'Physics', 'Chemistry', 'Biology', 'English', 'Economics', 'Government', 'Geography', 'Literature', 'Arts', 'Agricultural Science', 'Technical Drawing', 'Accounting'],
     type: 'multiple',
-    minSelections: 3,
-    maxSelections: 5,
+    minSelections: 1,
   },
   {
     id: 'interest-2',
@@ -23,8 +29,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What activities do you naturally enjoy?',
     options: ['Solving puzzles and problems', 'Building or creating things', 'Reading and researching', 'Working with technology', 'Helping others', 'Designing or drawing', 'Working with numbers', 'Writing or storytelling', 'Leading or organizing', 'Working outdoors'],
     type: 'multiple',
-    minSelections: 3,
-    maxSelections: 5,
+    minSelections: 1,
   },
   {
     id: 'interest-3',
@@ -32,8 +37,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What topics do you naturally research or learn about in your free time?',
     options: ['Technology and gadgets', 'Science and nature', 'Business and finance', 'Arts and culture', 'Health and medicine', 'Law and politics', 'Mathematics and logic', 'Design and creativity', 'Sports and fitness', 'History and society'],
     type: 'multiple',
-    minSelections: 3,
-    maxSelections: 5,
+    minSelections: 1,
   },
   {
     id: 'strength-1',
@@ -41,6 +45,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'Which of these best describes your strengths?',
     options: ['Problem solving', 'Communication', 'Creativity', 'Leadership', 'Organization', 'Numerical reasoning', 'Critical thinking', 'Teamwork', 'Writing', 'Technical thinking', 'Practical/manual skills', 'Attention to detail'],
     type: 'multiple',
+    minSelections: 1,
   },
   {
     id: 'strength-2',
@@ -48,6 +53,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'When faced with a challenge, what is your natural approach?',
     options: ['Analyze the problem systematically', 'Brainstorm creative solutions', 'Ask others for help', 'Break it down into smaller steps', 'Try different approaches until one works', 'Research how others have solved similar problems'],
     type: 'multiple',
+    minSelections: 1,
   },
   {
     id: 'subject-1',
@@ -121,6 +127,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What type of career interests you?',
     options: ['Technology', 'Healthcare', 'Business/Finance', 'Engineering', 'Education', 'Arts/Design', 'Law', 'Agriculture', 'Science/Research', 'Media/Communication'],
     type: 'multiple',
+    minSelections: 1,
   },
   {
     id: 'goal-2',
@@ -128,6 +135,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question: 'What industries interest you?',
     options: ['Technology', 'Healthcare', 'Finance', 'Education', 'Government', 'Agriculture', 'Manufacturing', 'Media', 'Consulting', 'Non-profit'],
     type: 'multiple',
+    minSelections: 1,
   },
   {
     id: 'goal-3',
@@ -165,3 +173,14 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     type: 'single',
   },
 ]
+
+export const totalSteps = QUESTIONNAIRE_CATEGORIES.length + 1
+
+export function getQuestionsByCategory(category: string): QuestionnaireQuestion[] {
+  return questionnaireQuestions.filter(question => question.category === category)
+}
+
+export function getCategoryLimit(category: string): CategorySelectionLimit | undefined {
+  if (category === REVIEW_CATEGORY) return undefined
+  return CATEGORY_SELECTION_LIMITS[category as QuestionnaireCategory]
+}

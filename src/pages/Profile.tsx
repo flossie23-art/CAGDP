@@ -1,10 +1,5 @@
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { careers } from '../data/careers'
-import { courses } from '../data/courses'
-import { institutions } from '../data/institutions'
-import { scholarships } from '../data/scholarships'
-import { onlineCourses } from '../data/onlineCourses'
 
 export default function Profile() {
   const { user, logout } = useAuth()

@@ -2,7 +2,6 @@ import { careers } from '../data/careers'
 import { courses } from '../data/courses'
 import { institutions } from '../data/institutions'
 import { scholarships } from '../data/scholarships'
-import { onlineCourses } from '../data/onlineCourses'
 import { SearchResult } from '../types'
 
 export function searchAll(query: string): SearchResult[] {

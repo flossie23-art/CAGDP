@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { scholarships } from '../data/scholarships'
 import { useAuth } from '../contexts/AuthContext'
 import ScholarshipCard from '../components/scholarship/ScholarshipCard'
-import { Scholarship } from '../types'
 import { filterScholarships } from '../services/searchService'
 
 export default function Scholarships() {

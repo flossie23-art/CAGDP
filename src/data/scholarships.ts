@@ -1,17 +1,6 @@
-export interface Scholarship {
-  id: string
-  name: string
-  provider: string
-  description: string
-  eligibility: string
-  deadline: string
-  location: string
-  studyLevel: string
-  field: string
-  applicationUrl: string
-  source: string
-  status: 'verified' | 'unverified'
-}
+import type { Scholarship } from '../types'
+
+export type { Scholarship }
 
 export const scholarships: Scholarship[] = [
   {
