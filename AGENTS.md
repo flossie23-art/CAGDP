@@ -196,6 +196,28 @@ Never commit `.env` files containing secrets.
 
 ---
 
+## 4.6 Privacy: No Stored User Data
+
+This is a hard architectural constraint, not a preference. The platform is
+anonymous and stateless.
+
+The application must NOT:
+
+* Write questionnaire answers or results to `localStorage`, `sessionStorage`,
+  `IndexedDB`, or cookies.
+* Create accounts, collect a name, email, phone number, or any identifier.
+* Generate or assign a user ID, device ID, or fingerprint.
+* Offer "Save", "Saved items", a profile, or questionnaire history.
+* Send any user input to a server, analytics, or third-party tracking.
+
+The application currently makes no network requests at all.
+
+If persistence is ever introduced, it requires a backend, explicit user
+consent, and a documented retention policy. Do not add browser storage as a
+stopgap.
+
+---
+
 # 5. TARGET USERS
 
 The platform should support several user types.
@@ -204,16 +226,15 @@ The platform should support several user types.
 
 Can:
 
-* Create an account
 * Complete an interest assessment
 * View recommendations
 * Explore careers
 * Explore courses
 * Explore institutions
 * Explore scholarships
-* Save opportunities
-* Track interests
-* Update their profile
+* Return to any questionnaire step to change answers
+
+There is no sign-up and no profile. See §4.6 and §23.
 
 ---
 
@@ -253,8 +274,6 @@ The main user journey should be:
 
 ```text
 Landing Page
-      ↓
-Create Account / Continue as Guest
       ↓
 Career Questionnaire
       ↓
@@ -437,13 +456,11 @@ Ask:
 
 The questionnaire must NOT display every question on one giant page.
 
-Use a multi-step flow.
-
-Example:
+Use a multi-step flow. The implemented steps are:
 
 ```text
 Step 1 / 6
-Interests
+Interest
 
 Step 2 / 6
 Strengths
@@ -455,7 +472,7 @@ Step 4 / 6
 Work Preferences
 
 Step 5 / 6
-Goals
+Career Goals
 
 Step 6 / 6
 Review
@@ -477,7 +494,22 @@ The user must be able to:
 * Change answers
 * Submit
 
-Do not lose questionnaire data when navigating between steps.
+Rules that are now enforced in code:
+
+* `Continue` is disabled until the current step is valid.
+* Validation is per question via `minSelections`, plus optional step-wide
+  budgets in `CATEGORY_SELECTION_LIMITS`.
+* The Interest step shares one budget of 3–5 selections across its three
+  questions. Each question needs at least one so the step cannot be skipped,
+  and the sixth selection anywhere in the step is blocked.
+* Steps after the first incomplete one are locked and cannot be opened.
+* Review lists every question, including unanswered ones, and links back to
+  any step to edit it.
+* Submission requires every step to be complete.
+
+Do not lose questionnaire data when navigating between steps. Answers live in
+`QuestionnaireContext`, which is mounted above the router, so in-app navigation
+never drops them. They are intentionally lost on reload. See §4.6.
 
 ---
 
@@ -489,22 +521,28 @@ Do NOT initially use an unnecessarily complex AI model.
 
 Start with a transparent rule-based scoring system.
 
-Example:
+The implemented weights, in `services/recommendationEngine.ts`:
 
 ```text
-Career: Software Engineering
-
-Mathematics interest       +20
-Computer Science interest  +25
-Problem solving            +20
-Technology interest        +15
-Analytical thinking        +15
-Programming interest       +20
-
-Total Score = 115
+Matched recommended subject   +25
+Matched recommended interest  +20
+Matched recommended strength  +15
 ```
 
-Normalize scores where appropriate.
+Answers are not compared against career tags as raw text. `services/answerProfile.ts`
+maps each questionnaire option to the canonical tags careers use:
+
+```text
+option "Working with technology"
+  → interest  Technology, Programming
+  → strength  Technical Thinking
+```
+
+Always record which option produced each tag so the "Why?" text can cite the
+user's own words. Keep the mapping explicit in data rather than inferring it
+from string similarity.
+
+Ordering is by raw score. Match levels are separate; see §13.
 
 ---
 
@@ -602,6 +640,21 @@ Strong Match
 Good Match
 Possible Match
 Explore Further
+```
+
+A match level is the average of how much of each of the three dimensions
+(subjects, interests, strengths) the answers covered. It is deliberately
+absolute rather than relative to the top result, so a broadly compatible
+career is not inflated just because the user's other answers scored low, and a
+career cannot reach "Strong Match" on one dimension alone.
+
+Current thresholds:
+
+```text
+>= 0.80  Strong Match
+>= 0.60  Good Match
+>= 0.30  Possible Match
+else     Explore Further
 ```
 
 Do not present recommendations as guaranteed career outcomes.
@@ -893,61 +946,56 @@ Where appropriate, provide filters such as:
 
 # 23. USER ACCOUNT
 
-Users should eventually have:
+There is no user account, and none should be added casually.
 
-```text
-Profile
-Questionnaire History
-Recommendations
-Saved Careers
-Saved Courses
-Saved Institutions
-Saved Scholarships
-Saved Opportunities
-```
+Accounts, profiles, and saved items were deliberately removed. The platform is
+fully anonymous: no sign-up, no sign-in, no profile page, no saved lists, and
+no identifiers of any kind.
 
-The application must not require account creation before the user can understand the product.
+The questionnaire must remain completable with zero friction. Do not gate any
+part of the product behind an account.
 
-Prefer allowing the questionnaire to be completed as a guest.
+The application must not require account creation before the user can
+understand the product.
 
-Prompt the user to create an account when they want to:
-
-* Save results
-* Save opportunities
-* Track recommendations
-* Return later
+If accounts are ever reintroduced, they require a backend, a documented
+retention policy, and explicit user consent. Browser storage must not be used
+as a substitute. See §4.6.
 
 ---
 
-# 24. DATABASE DESIGN
+# 24. DATA LAYER
 
-Keep database models normalized enough to avoid excessive duplication.
-
-Suggested conceptual entities:
+There is no database and no server. All content is static TypeScript data
+modules under `src/data/`, each exporting a typed array plus a re-export of its
+interface from `src/types.ts`:
 
 ```text
-User
-Profile
-Questionnaire
-Question
-QuestionOption
-QuestionnaireResponse
-Career
-Course
-Institution
-Scholarship
-OnlineCourse
-Opportunity
-Skill
-Recommendation
-SavedItem
+careers.ts         10 records
+courses.ts         10 records
+institutions.ts     8 records
+scholarships.ts     7 records
+onlineCourses.ts   10 records
+questions.ts       21 questions
 ```
 
-Relationships should be explicit.
+The single source of truth for shared shapes is `src/types.ts`. Data modules
+define their own records and re-export the type:
 
-Avoid storing large JSON blobs when a relational structure is more appropriate.
+```ts
+import type { Career } from '../types'
 
-However, JSON may be used for flexible questionnaire metadata when justified.
+export type { Career }
+
+export const careers: Career[] = [ ... ]
+```
+
+When these move to a real database later, the types in `src/types.ts` are the
+contract to preserve. Keep them normalized and explicit, and avoid large JSON
+blobs where a relational structure would be clearer.
+
+Questionnaire metadata is the one place a small structured literal is
+justified, since question options are read as a unit.
 
 ---
 
@@ -955,35 +1003,51 @@ However, JSON may be used for flexible questionnaire metadata when justified.
 
 Use a component-based architecture.
 
-Suggested structure:
+The implemented structure is:
 
 ```text
 src/
-├── components/
-│   ├── ui/
-│   ├── questionnaire/
-│   ├── career/
-│   ├── course/
-│   ├── institution/
-│   ├── scholarship/
-│   └── opportunity/
+├── main.tsx                     entry point
+├── App.tsx                      providers + route table
+├── index.css                    design tokens and shared classes
+│
+├── contexts/
+│   └── QuestionnaireContext.tsx   answers, step, results (memory only)
 │
 ├── pages/
+│   ├── Home.tsx
+│   ├── Questionnaire.tsx        six-step flow
+│   ├── Results.tsx              recommendations
+│   ├── Careers.tsx  CareerDetail.tsx
+│   ├── Courses.tsx  CourseDetail.tsx
+│   ├── Institutions.tsx  InstitutionDetail.tsx
+│   └── Scholarships.tsx
 │
 ├── layouts/
+│   └── Layout.tsx               nav + footer + outlet
 │
-├── hooks/
+├── components/
+│   ├── ui/                      Nav, Footer, Loading
+│   ├── questionnaire/           QuestionCard, ProgressIndicator, ReviewStep
+│   ├── career/                  CareerCard
+│   ├── course/                  CourseCard
+│   ├── institution/             InstitutionCard
+│   └── scholarship/             ScholarshipCard
 │
 ├── services/
+│   ├── questionnaireValidation.ts  pure step/option rules
+│   ├── answerProfile.ts            option → career-tag mapping
+│   ├── recommendationEngine.ts     scoring and match levels
+│   └── searchService.ts            filtering helpers
 │
-├── utils/
+├── data/                        static typed datasets, see §24
 │
-├── data/
-│
-├── types/
-│
-└── styles/
+└── types.ts                     all shared interfaces
 ```
+
+Keep business rules in `services/` as pure functions so they can be tested
+without React. Components read state and render; they should not contain
+validation or scoring logic.
 
 Adjust this structure if the selected framework has a better convention.
 
@@ -1097,3 +1161,71 @@ The interface must be tested at approximately:
 768px
 1024px
 ```
+
+This has not been verified in a real browser. Treat it as outstanding work.
+
+---
+
+# 31. CURRENT IMPLEMENTATION STATE
+
+## Stack
+
+```text
+React 19
+TypeScript 5.9
+Vite 5.4
+React Router DOM 7
+Tailwind CSS 4
+```
+
+## Scripts
+
+```text
+npm run dev        start the dev server
+npm run build      production build to dist/
+npm run typecheck  tsc --noEmit
+npm run test       questionnaire + render verification harnesses
+npm run preview    serve the production build locally
+npm run deploy     publish dist/ to gh-pages
+```
+
+`npm run typecheck` and `npm run test` are both required to pass before a
+change is considered done. They cover the validation rules, the recommendation
+engine, and the rendered markup of the questionnaire.
+
+## Verification harnesses
+
+```text
+scripts/verify-questionnaire.ts   36 checks, pure logic
+scripts/verify-render.tsx         31 checks, server-rendered markup
+```
+
+These are plain scripts with no test framework dependency. They are bundled
+with esbuild and run under Node.
+
+## Routing
+
+All routes sit under the `/CAGDP` basename, which matches the GitHub Pages
+sub-path. Use React Router navigation everywhere. Do not use
+`window.location.href` or `window.history.back()`; both drop the basename and
+404 in production.
+
+## Deployment
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds and
+publishes to GitHub Pages.
+
+```text
+https://flossie23-art.github.io/CAGDP
+```
+
+## Known Outstanding Work
+
+* Breakpoints in §30 are untested in a real browser.
+* `interest-1` ("Which subjects do you enjoy the most?") and `subject-1`
+  ("Which subjects do you enjoy?") are near-duplicates offering the same
+  options. Reworked as a content decision, not yet done.
+* Search (§21) and filters (§22) are partial: list pages filter locally,
+  there is no global search.
+* Online courses (§19) are in the data layer but have no page.
+* Entry-level opportunities (§20) are not implemented at all.
