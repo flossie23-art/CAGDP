@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
 import { scholarships } from '../data/scholarships'
-import { useAuth } from '../contexts/AuthContext'
 import ScholarshipCard from '../components/scholarship/ScholarshipCard'
 import { filterScholarships } from '../services/searchService'
 
 export default function Scholarships() {
-  const { saveItem, isSaved } = useAuth()
   const [filter, setFilter] = useState('')
   const [levelFilter, setLevelFilter] = useState('')
 
@@ -51,8 +49,6 @@ export default function Scholarships() {
           <ScholarshipCard
             key={scholarship.id}
             scholarship={scholarship}
-            onSave={(id) => saveItem('scholarship', id)}
-            isSaved={isSaved('scholarship', scholarship.id)}
           />
         ))}
       </div>

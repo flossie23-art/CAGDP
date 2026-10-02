@@ -38,6 +38,11 @@ export default function Footer() {
         </div>
         <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', textAlign: 'center' }}>
           <p style={{ color: 'var(--color-muted)', fontSize: '0.75rem' }}>
+            Privacy: this site stores no information about you. Questionnaire answers are kept in
+            your browser only while the page is open, are never saved to this site, and are never sent anywhere.
+            Reloading or closing the page clears them.
+          </p>
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.75rem', marginTop: '0.5rem' }}>
             © 2025 CAEGDP. All rights reserved. This platform provides guidance only, not guaranteed outcomes.
           </p>
         </div>

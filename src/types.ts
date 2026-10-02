@@ -1,16 +1,3 @@
-export interface User {
-  id: string
-  name: string
-  email: string
-  createdAt: string
-  questionnaireResponses?: QuestionnaireAnswers
-  savedCareers: string[]
-  savedCourses: string[]
-  savedInstitutions: string[]
-  savedScholarships: string[]
-  savedOpportunities: string[]
-}
-
 export interface Career {
   id: string
   name: string

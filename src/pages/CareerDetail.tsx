@@ -2,11 +2,9 @@ import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { careers } from '../data/careers'
 import { courses } from '../data/courses'
-import { useAuth } from '../contexts/AuthContext'
 
 export default function CareerDetail() {
   const { id } = useParams<{ id: string }>()
-  const { saveItem, isSaved } = useAuth()
   const career = careers.find(c => c.id === id)
 
   if (!career) {
@@ -27,16 +25,13 @@ export default function CareerDetail() {
       </Link>
 
       <div className="card" style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>{career.name}</h1>
             <span className="badge" style={{ background: 'var(--color-primary)', color: 'white', fontSize: '0.875rem', padding: '0.375rem 1rem' }}>
               {career.industry}
             </span>
           </div>
-          <button className="btn btn-outline btn-sm" onClick={() => saveItem('career', career.id)}>
-            {isSaved('career', career.id) ? 'Saved ✓' : 'Save'}
-          </button>
         </div>
 
         <p style={{ lineHeight: 1.7, marginBottom: '1.5rem' }}>{career.description}</p>

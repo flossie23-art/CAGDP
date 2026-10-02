@@ -4,11 +4,9 @@ import { Career, RecommendationResult } from '../../types'
 interface CareerCardProps {
   result: RecommendationResult
   onExplore: (career: Career) => void
-  onSave: (id: string) => void
-  isSaved: boolean
 }
 
-export default function CareerCard({ result, onExplore, onSave, isSaved }: CareerCardProps) {
+export default function CareerCard({ result, onExplore }: CareerCardProps) {
   const { career, matchLevel, reasons } = result
 
   const badgeClass = matchLevel === 'Strong Match' ? 'badge-strong' :
@@ -39,14 +37,9 @@ export default function CareerCard({ result, onExplore, onSave, isSaved }: Caree
           </span>
         ))}
       </div>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button className="btn btn-primary btn-sm" onClick={() => onExplore(career)}>
-          Explore Career
-        </button>
-        <button className="btn btn-outline btn-sm" onClick={() => onSave(career.id)}>
-          {isSaved ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
+      <button className="btn btn-primary btn-sm" onClick={() => onExplore(career)}>
+        Explore Career
+      </button>
     </div>
   )
 }

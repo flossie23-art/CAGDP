@@ -1,11 +1,9 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { institutions } from '../data/institutions'
-import { useAuth } from '../contexts/AuthContext'
 
 export default function InstitutionDetail() {
   const { id } = useParams<{ id: string }>()
-  const { saveItem, isSaved } = useAuth()
   const institution = institutions.find(i => i.id === id)
 
   if (!institution) {
@@ -24,16 +22,13 @@ export default function InstitutionDetail() {
       </Link>
 
       <div className="card" style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>{institution.name}</h1>
             <span className="badge" style={{ background: 'var(--color-primary)', color: 'white' }}>
               {institution.type}
             </span>
           </div>
-          <button className="btn btn-outline btn-sm" onClick={() => saveItem('institution', institution.id)}>
-            {isSaved('institution', institution.id) ? 'Saved ✓' : 'Save'}
-          </button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>

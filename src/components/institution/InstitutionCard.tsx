@@ -4,11 +4,9 @@ import { Institution } from '../../types'
 interface InstitutionCardProps {
   institution: Institution
   onExplore: (institution: Institution) => void
-  onSave: (id: string) => void
-  isSaved: boolean
 }
 
-export default function InstitutionCard({ institution, onExplore, onSave, isSaved }: InstitutionCardProps) {
+export default function InstitutionCard({ institution, onExplore }: InstitutionCardProps) {
   const typeColors: Record<string, string> = {
     University: 'var(--color-primary)',
     Polytechnic: 'var(--color-secondary)',
@@ -31,14 +29,9 @@ export default function InstitutionCard({ institution, onExplore, onSave, isSave
       <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
         {institution.courses.slice(0, 3).join(', ')}
       </p>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button className="btn btn-primary btn-sm" onClick={() => onExplore(institution)}>
+      <button className="btn btn-primary btn-sm" onClick={() => onExplore(institution)}>
           Explore
         </button>
-        <button className="btn btn-outline btn-sm" onClick={() => onSave(institution.id)}>
-          {isSaved ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
     </div>
   )
 }

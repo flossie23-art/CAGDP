@@ -3,11 +3,9 @@ import { Scholarship } from '../../types'
 
 interface ScholarshipCardProps {
   scholarship: Scholarship
-  onSave: (id: string) => void
-  isSaved: boolean
 }
 
-export default function ScholarshipCard({ scholarship, onSave, isSaved }: ScholarshipCardProps) {
+export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
@@ -33,14 +31,9 @@ export default function ScholarshipCard({ scholarship, onSave, isSaved }: Schola
       <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
         {scholarship.eligibility}
       </p>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <a href={scholarship.applicationUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+      <a href={scholarship.applicationUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
           Apply Now
         </a>
-        <button className="btn btn-outline btn-sm" onClick={() => onSave(scholarship.id)}>
-          {isSaved ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
     </div>
   )
 }

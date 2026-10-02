@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { calculateRecommendations } from '../services/recommendationEngine'
 import {
   getCategorySelectionCount,
@@ -20,8 +20,6 @@ import {
   type QuestionnaireQuestion,
   type RecommendationResult,
 } from '../types'
-
-const STORAGE_KEY = 'caegdp:questionnaire'
 
 export const STEP_LABELS = [...QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY]
 
@@ -61,53 +59,16 @@ interface QuestionnaireContextValue {
 
 const QuestionnaireContext = createContext<QuestionnaireContextValue | null>(null)
 
-interface PersistedState {
-  answers: QuestionnaireAnswers
-  currentStep: number
-  results: RecommendationResult[] | null
-  hasSubmitted: boolean
-}
-
-function readPersistedState(): PersistedState | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<PersistedState>
-    if (!parsed || typeof parsed !== 'object' || !parsed.answers || typeof parsed.answers !== 'object') {
-      return null
-    }
-    const answers: QuestionnaireAnswers = {}
-    Object.entries(parsed.answers).forEach(([questionId, options]) => {
-      if (Array.isArray(options)) answers[questionId] = options.filter(item => typeof item === 'string')
-    })
-    const currentStep = typeof parsed.currentStep === 'number' ? parsed.currentStep : 0
-    return {
-      answers,
-      currentStep: Math.min(Math.max(currentStep, 0), totalSteps - 1),
-      results: Array.isArray(parsed.results) ? parsed.results : null,
-      hasSubmitted: parsed.hasSubmitted === true,
-    }
-  } catch {
-    return null
-  }
-}
-
+/**
+ * Questionnaire state is held in memory only. Nothing is written to
+ * sessionStorage, localStorage or cookies, and no answers are sent anywhere, so
+ * a reload discards them by design.
+ */
 export function QuestionnaireProvider({ children }: { children: React.ReactNode }) {
-  const initial = useMemo(readPersistedState, [])
-  const [answers, setAnswers] = useState<QuestionnaireAnswers>(() => initial?.answers ?? {})
-  const [currentStep, setCurrentStep] = useState(() => initial?.currentStep ?? 0)
-  const [results, setResults] = useState<RecommendationResult[] | null>(() => initial?.results ?? null)
-  const [hasSubmitted, setHasSubmitted] = useState(() => initial?.hasSubmitted ?? false)
-
-  useEffect(() => {
-    try {
-      const payload: PersistedState = { answers, currentStep, results, hasSubmitted }
-      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-    } catch {
-      // Storage can be unavailable (private mode / quota). The questionnaire still works in memory.
-    }
-  }, [answers, currentStep, results, hasSubmitted])
+  const [answers, setAnswers] = useState<QuestionnaireAnswers>({})
+  const [currentStep, setCurrentStep] = useState(0)
+  const [results, setResults] = useState<RecommendationResult[] | null>(null)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const firstIncompleteStep = useMemo(() => getFirstIncompleteStep(answers), [answers])
 
@@ -157,11 +118,6 @@ export function QuestionnaireProvider({ children }: { children: React.ReactNode 
     setCurrentStep(0)
     setResults(null)
     setHasSubmitted(false)
-    try {
-      window.sessionStorage.removeItem(STORAGE_KEY)
-    } catch {
-      // Ignore storage failures; state is already reset in memory.
-    }
   }, [])
 
   const value = useMemo<QuestionnaireContextValue>(() => ({

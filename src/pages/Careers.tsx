@@ -1,12 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { careers } from '../data/careers'
-import { useAuth } from '../contexts/AuthContext'
 import CareerCard from '../components/career/CareerCard'
 import { filterCareers } from '../services/searchService'
 
 export default function Careers() {
-  const { saveItem, isSaved } = useAuth()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('')
   const [industryFilter, setIndustryFilter] = useState('')
@@ -54,8 +52,6 @@ export default function Careers() {
             key={career.id}
             result={{ career, score: 0, matchLevel: 'Explore Further', reasons: [] }}
             onExplore={c => navigate(`/careers/${c.id}`)}
-            onSave={(id) => saveItem('career', id)}
-            isSaved={isSaved('career', career.id)}
           />
         ))}
       </div>

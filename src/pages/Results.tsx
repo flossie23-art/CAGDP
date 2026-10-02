@@ -1,12 +1,10 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuestionnaire } from '../contexts/QuestionnaireContext'
-import { useAuth } from '../contexts/AuthContext'
 import CareerCard from '../components/career/CareerCard'
 
 export default function Results() {
   const { results, hasSubmitted, resetQuestionnaire } = useQuestionnaire()
-  const { saveItem, isSaved } = useAuth()
   const navigate = useNavigate()
 
   if (!hasSubmitted || !results || results.length === 0) {
@@ -51,8 +49,6 @@ export default function Results() {
             key={result.career.id}
             result={result}
             onExplore={career => navigate(`/careers/${career.id}`)}
-            onSave={id => saveItem('career', id)}
-            isSaved={isSaved('career', result.career.id)}
           />
         ))}
       </div>

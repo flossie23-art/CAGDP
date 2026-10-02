@@ -4,11 +4,9 @@ import { Course } from '../../types'
 interface CourseCardProps {
   course: Course
   onExplore: (course: Course) => void
-  onSave: (id: string) => void
-  isSaved: boolean
 }
 
-export default function CourseCard({ course, onExplore, onSave, isSaved }: CourseCardProps) {
+export default function CourseCard({ course, onExplore }: CourseCardProps) {
   return (
     <div className="card">
       <span className="badge" style={{ background: 'var(--color-primary)', color: 'white', marginBottom: '0.5rem' }}>
@@ -22,14 +20,9 @@ export default function CourseCard({ course, onExplore, onSave, isSaved }: Cours
         <div>Duration: {course.duration}</div>
         <div>Qualification: {course.qualification}</div>
       </div>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button className="btn btn-primary btn-sm" onClick={() => onExplore(course)}>
-          Explore Course
-        </button>
-        <button className="btn btn-outline btn-sm" onClick={() => onSave(course.id)}>
-          {isSaved ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
+      <button className="btn btn-primary btn-sm" onClick={() => onExplore(course)}>
+        Explore Course
+      </button>
     </div>
   )
 }

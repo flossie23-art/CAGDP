@@ -1,7 +1,6 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter } from 'react-router-dom'
-import { AuthProvider } from '../src/contexts/AuthContext'
 import { QuestionnaireProvider } from '../src/contexts/QuestionnaireContext'
 import Questionnaire from '../src/pages/Questionnaire'
 import Results from '../src/pages/Results'
@@ -27,11 +26,9 @@ function check(name: string, condition: boolean, detail = '') {
 
 function render(node: React.ReactElement, route = '/'): string {
   return renderToStaticMarkup(
-    <AuthProvider>
-      <QuestionnaireProvider>
-        <MemoryRouter initialEntries={[route]}>{node}</MemoryRouter>
-      </QuestionnaireProvider>
-    </AuthProvider>
+    <QuestionnaireProvider>
+      <MemoryRouter initialEntries={[route]}>{node}</MemoryRouter>
+    </QuestionnaireProvider>
   )
 }
 
