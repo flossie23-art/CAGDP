@@ -37,6 +37,17 @@ export function getUnansweredQuestions(category: string, answers: QuestionnaireA
     .filter(question => !isQuestionAnswered(question, answers))
 }
 
+/**
+ * How many further selections the step still needs. This counts selections
+ * rather than questions, so a step like Subjects — three selections per
+ * question — never tells the user it needs "1 more" when it needs two more
+ * inside a single question.
+ */
+export function getRemainingSelections(category: string, answers: QuestionnaireAnswers): number {
+  return getUnansweredQuestions(category, answers)
+    .reduce((total, question) => total + Math.max(0, getRequiredCount(question) - (answers[question.id]?.length ?? 0)), 0)
+}
+
 /** Highest step index the user is allowed to open. Everything before it is complete. */
 export function getFirstIncompleteStep(answers: QuestionnaireAnswers): number {
   const index = QUESTIONNAIRE_CATEGORIES.findIndex(category => !isCategoryComplete(category, answers))

@@ -4,6 +4,7 @@ import { QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY, type QuestionnaireAnswers, t
 import {
   getCategorySelectionCount,
   getFirstIncompleteStep,
+  getRemainingSelections,
   getStepRequirement,
   getUnansweredQuestions,
   isCategoryComplete,
@@ -118,6 +119,14 @@ check('Review requirement text', getStepRequirement(REVIEW_CATEGORY, full).text 
 check('requirement text is independent of answers', QUESTIONNAIRE_CATEGORIES.every(c => getStepRequirement(c, {}).text === getStepRequirement(c, full).text))
 check('an unmet step reports unmet', QUESTIONNAIRE_CATEGORIES.every(c => !getStepRequirement(c, {}).met))
 check('the requirement flips to met exactly when the step is complete', QUESTIONNAIRE_CATEGORIES.every(c => getStepRequirement(c, full).met === isCategoryComplete(c, full)))
+
+console.log('\n== sticky-bar status counts selections, not questions ==')
+check('a fresh step asks for every selection it needs', getRemainingSelections('Subjects', {}) === 9)
+check('a fresh Interest step asks for one per question', getRemainingSelections('Interest', {}) === 3)
+check('Work Preferences needs one per question', getRemainingSelections('Work Preferences', {}) === 6)
+check('partly answered Subjects still needs both remaining in one question', getRemainingSelections('Subjects', { 'subject-1': ['Mathematics', 'Computer Science', 'Physics'], 'subject-2': ['Mathematics', 'Computer Science', 'Physics'], 'subject-3': ['Mathematics'] }) === 2)
+check('a fully answered step needs nothing more', getRemainingSelections('Subjects', full) === 0)
+check('the count never drops below zero', getRemainingSelections('Interest', { 'interest-1': ['Mathematics', 'Physics'], 'interest-2': ['Working with technology'], 'interest-3': ['Science and nature', 'Arts and culture', 'Law and politics'] }) === 0)
 
 console.log('\n== disabled Continue is styled, not just inert ==')
 const css = readFileSync('src/index.css', 'utf8')

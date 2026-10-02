@@ -3,8 +3,6 @@ import { calculateRecommendations } from '../services/recommendationEngine'
 import {
   getCategorySelectionCount,
   getFirstIncompleteStep,
-  getRequiredCount,
-  getUnansweredQuestions,
   isCategoryComplete,
   isOptionDisabled,
   isQuestionAnswered,
@@ -25,13 +23,6 @@ export const STEP_LABELS = [...QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY]
 
 export type StepState = 'complete' | 'available' | 'locked'
 
-export interface UnansweredQuestion {
-  question: QuestionnaireQuestion
-  selectedCount: number
-  requiredCount: number
-  maxSelections?: number
-}
-
 interface QuestionnaireContextValue {
   answers: QuestionnaireAnswers
   currentStep: number
@@ -46,7 +37,6 @@ interface QuestionnaireContextValue {
   getQuestions: (category: string) => QuestionnaireQuestion[]
   getCategoryLimit: (category: string) => CategorySelectionLimit | undefined
   getCategorySelectionCount: (category: string) => number
-  getUnanswered: (category: string) => UnansweredQuestion[]
   isOptionDisabled: (question: QuestionnaireQuestion, option: string) => boolean
   isQuestionAnswered: (questionId: string) => boolean
   toggleOption: (question: QuestionnaireQuestion, option: string) => void
@@ -136,13 +126,6 @@ export function QuestionnaireProvider({ children }: { children: React.ReactNode 
     getQuestions: getQuestionsByCategory,
     getCategoryLimit,
     getCategorySelectionCount: (category: string) => getCategorySelectionCount(category, answers),
-    getUnanswered: (category: string) => getUnansweredQuestions(category, answers)
-      .map(question => ({
-        question,
-        selectedCount: answers[question.id]?.length ?? 0,
-        requiredCount: getRequiredCount(question),
-        maxSelections: question.maxSelections,
-      })),
     isOptionDisabled: (question: QuestionnaireQuestion, option: string) => isOptionDisabled(question, option, answers),
     isQuestionAnswered: (questionId: string) => {
       const question = getQuestionsByCategory(currentCategory).find(item => item.id === questionId)

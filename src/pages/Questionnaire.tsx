@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuestionnaire, STEP_LABELS } from '../contexts/QuestionnaireContext'
 import { questionnaireQuestions } from '../data/questions'
 import { QUESTIONNAIRE_CATEGORIES, type QuestionnaireCategory } from '../types'
-import { getStepRequirement } from '../services/questionnaireValidation'
+import { getRemainingSelections, getStepRequirement } from '../services/questionnaireValidation'
 import ProgressIndicator from '../components/questionnaire/ProgressIndicator'
 import QuestionCard from '../components/questionnaire/QuestionCard'
 import ReviewStep from '../components/questionnaire/ReviewStep'
@@ -21,7 +21,6 @@ export default function Questionnaire() {
     getQuestions,
     getCategoryLimit,
     getCategorySelectionCount,
-    getUnanswered,
     isOptionDisabled,
     isQuestionAnswered,
     canProceed,
@@ -40,7 +39,7 @@ export default function Questionnaire() {
   const requirement = getStepRequirement(currentCategory, answers)
   const categoryLimit = getCategoryLimit(currentCategory)
   const selectedCount = getCategorySelectionCount(currentCategory)
-  const unanswered = getUnanswered(currentCategory)
+  const remainingSelections = getRemainingSelections(currentCategory, answers)
 
   useEffect(() => {
     headingRef.current?.focus()
@@ -63,8 +62,8 @@ export default function Questionnaire() {
 
   const statusText = canProceed
     ? '✓ Step complete'
-    : unanswered.length > 0
-      ? `Select ${unanswered.length} more to continue`
+    : remainingSelections > 0
+      ? `Select ${remainingSelections} more to continue`
       : categoryLimit
         ? `Choose ${Math.max(1, categoryLimit.min - selectedCount)} more ${categoryLimit.label}`
         : 'Keep going'

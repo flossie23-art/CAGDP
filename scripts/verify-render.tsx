@@ -199,6 +199,24 @@ markup = render(
 check('cards can carry a numbered marker', /class="question-index"[^>]*>3</.test(markup))
 check('cards keep the per-question minimum in the header', markup.includes('Select 3 or more'))
 check('cards no longer repeat the step requirement', !markup.includes('in total'))
+check('an unmet card is flagged', markup.includes('data-unmet="true"'))
+check('the unmet marker is on the left edge, not the whole border', markup.includes('border-left-color:var(--color-warning)') && !markup.includes('border-color:var(--color-warning)'))
+check('the requirement tag is quiet, not an error colour', !markup.includes('var(--color-error)'))
+
+markup = render(
+  <QuestionCard
+    index={2}
+    question="Which subjects do you perform well in?"
+    options={['Mathematics', 'English', 'Physics']}
+    selectedOptions={['Mathematics', 'English', 'Physics']}
+    onToggle={() => {}}
+    questionType="multiple"
+    minSelections={3}
+    isAnswered
+  />,
+)
+check('a satisfied card drops the unmet marker', !markup.includes('data-unmet'))
+check('a satisfied card keeps its normal border', !markup.includes('var(--color-warning)'))
 
 console.log('\n== progress indicator states ==')
 markup = render(

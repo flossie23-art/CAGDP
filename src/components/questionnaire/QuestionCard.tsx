@@ -42,11 +42,15 @@ export default function QuestionCard({
       ? 'Answered.'
       : 'Not answered yet.'
 
+  const isUnmet = isRequired && !isAnswered
+
   return (
     <fieldset
       className="card option-fieldset"
+      data-unmet={isUnmet ? 'true' : undefined}
       style={{
-        borderColor: isRequired && !isAnswered ? 'var(--color-warning)' : undefined,
+        borderLeftColor: isUnmet ? 'var(--color-warning)' : undefined,
+        borderLeftWidth: isUnmet ? '4px' : undefined,
         margin: 0,
         minWidth: 0,
       }}
@@ -69,7 +73,7 @@ export default function QuestionCard({
             fontSize: '0.75rem',
             fontWeight: 600,
             whiteSpace: 'nowrap',
-            color: isRequired ? 'var(--color-error)' : 'var(--color-muted)',
+            color: 'var(--color-muted)',
           }}
         >
           {requirementText}
