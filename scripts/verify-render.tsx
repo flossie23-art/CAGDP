@@ -7,6 +7,8 @@ import Results from '../src/pages/Results'
 import ProgressIndicator from '../src/components/questionnaire/ProgressIndicator'
 import QuestionCard from '../src/components/questionnaire/QuestionCard'
 import ReviewStep from '../src/components/questionnaire/ReviewStep'
+import RequirementBanner from '../src/components/questionnaire/RequirementBanner'
+import StepActionBar from '../src/components/questionnaire/StepActionBar'
 import { QUESTIONNAIRE_CATEGORIES, type QuestionnaireAnswers } from '../src/types'
 import { questionnaireQuestions } from '../src/data/questions'
 import { calculateRecommendations } from '../src/services/recommendationEngine'
@@ -69,6 +71,59 @@ check('questions use fieldsets for grouping', markup.includes('<fieldset'))
 check('inputs are focusable rather than display:none', !markup.includes('display:none'))
 check('progress bar exposes value', markup.includes('role="progressbar"'))
 
+console.log('\n== one independent screen per step ==')
+check('step eyebrow names the current step', markup.includes('Step 1 of 6 · Interest'))
+check('requirement banner renders', markup.includes('class="step-banner"'))
+check('requirement banner states the step requirement', markup.includes('This step needs: Choose 3-5 interests in total'))
+check('sticky action bar renders', markup.includes('class="step-action-bar"'))
+check('continue is disabled on a fresh step', /class="btn btn-primary btn-sm"[^>]*disabled/.test(markup))
+check('step status asks for the remaining answers', markup.includes('Select 3 more to continue'))
+check(
+  'only the current screen is mounted',
+  questionnaireQuestions.filter(q => q.category === 'Interest').every(q => markup.includes(q.question))
+    && !questionnaireQuestions.filter(q => q.category !== 'Interest').some(q => markup.includes(q.question)),
+)
+check('questions inside a screen are numbered', markup.includes('class="question-index"'))
+
+console.log('\n== requirement banner states ==')
+markup = render(<RequirementBanner text="Answer all 6 questions." met={false} />)
+check('unmet banner announces what is needed', markup.includes('This step needs: Answer all 6 questions.'))
+check('unmet banner is a polite live region', markup.includes('aria-live="polite"'))
+check('unmet banner is marked', markup.includes('data-met="false"'))
+
+markup = render(<RequirementBanner text="Answer all 6 questions." met />)
+check('met banner confirms the requirement', markup.includes('Requirement met. Answer all 6 questions.'))
+check('met banner is marked', markup.includes('data-met="true"'))
+
+console.log('\n== step action bar states ==')
+markup = render(
+  <StepActionBar
+    showBack
+    canContinue={false}
+    statusText="Select 2 more to continue"
+    statusMet={false}
+    onBack={() => {}}
+    onContinue={() => {}}
+  />,
+)
+check('bar keeps Back enabled', /Back<\/button>/.test(markup))
+check('bar disables Continue while invalid', /class="btn btn-primary btn-sm"[^>]*disabled/.test(markup))
+check('bar reports the outstanding count', markup.includes('Select 2 more to continue'))
+
+markup = render(
+  <StepActionBar
+    showBack={false}
+    canContinue
+    statusText="✓ Step complete"
+    statusMet
+    onBack={() => {}}
+    onContinue={() => {}}
+  />,
+)
+check('bar enables Continue once valid', !/class="btn btn-primary btn-sm"[^>]*disabled/.test(markup))
+check('bar confirms completion', markup.includes('✓ Step complete'))
+check('bar hides Back on the first step', !/Back<\/button>/.test(markup))
+
 markup = render(<Results />, '/results')
 check('results page shows empty state when nothing submitted', markup.includes('No Results Yet'))
 check('results page links back into the questionnaire', markup.includes('/questionnaire'))
@@ -81,8 +136,6 @@ markup = render(
     categories={QUESTIONNAIRE_CATEGORIES}
     canSubmit={false}
     onEditCategory={() => {}}
-    onBack={() => {}}
-    onSubmit={() => {}}
   />,
 )
 check('review lists every category', QUESTIONNAIRE_CATEGORIES.every(c => markup.includes(c)))
@@ -90,7 +143,7 @@ check('review shows every question', questionnaireQuestions.every(q => markup.in
 check('review flags unanswered questions', markup.includes('Not answered'))
 check('review offers per-category edit', markup.includes('Edit'))
 check('review blocks submit while incomplete', markup.includes('Some required questions are still unanswered'))
-check('review submit is disabled while incomplete', /Submit &amp; See Results<\/button>/.test(markup) && markup.includes('disabled'))
+check('review leaves the action bar to the page', !/Submit/.test(markup))
 
 markup = render(
   <ReviewStep
@@ -99,8 +152,6 @@ markup = render(
     categories={QUESTIONNAIRE_CATEGORIES}
     canSubmit
     onEditCategory={() => {}}
-    onBack={() => {}}
-    onSubmit={() => {}}
   />,
 )
 check('review has no unanswered markers when complete', !markup.includes('Not answered'))
@@ -133,6 +184,21 @@ markup = render(
 check('single questions report answered', markup.includes('Answered.'))
 check('single questions use radio inputs', markup.includes('type="radio"'))
 check('single questions are labelled Required', markup.includes('Required'))
+
+markup = render(
+  <QuestionCard
+    index={3}
+    question="Which subjects do you perform well in?"
+    options={['Mathematics', 'English']}
+    selectedOptions={[]}
+    onToggle={() => {}}
+    questionType="multiple"
+    minSelections={3}
+  />,
+)
+check('cards can carry a numbered marker', /class="question-index"[^>]*>3</.test(markup))
+check('cards keep the per-question minimum in the header', markup.includes('Select 3 or more'))
+check('cards no longer repeat the step requirement', !markup.includes('in total'))
 
 console.log('\n== progress indicator states ==')
 markup = render(

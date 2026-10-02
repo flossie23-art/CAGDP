@@ -494,9 +494,43 @@ The user must be able to:
 * Change answers
 * Submit
 
+Each step is an **independent screen**. Only the current step's questions are
+mounted, and the next screen does not exist until `Continue` is pressed.
+
+Every screen is laid out the same way:
+
+```text
+┌─────────────────────────────────────────┐
+│ Step 3 of 6 · Subjects                  │   step eyebrow
+│ Subjects                                 │   step title
+│ Tell us which subjects you are strong in │   one-line purpose
+├─────────────────────────────────────────┤
+│ ▸ This step needs: 3 or more in each of  │   requirement banner
+│   the 3 questions.                       │
+├─────────────────────────────────────────┤
+│ (1) [question card]                      │   numbered marker
+│ (2) [question card]                      │
+│ (3) [question card]                      │
+├─────────────────────────────────────────┤
+│ ← Back        2 still needed   Continue │   sticky action bar
+└─────────────────────────────────────────┘
+```
+
+The banner text is derived from the question data by `getStepRequirement` in
+`services/questionnaireValidation.ts`, not hardcoded per screen. It is
+`aria-live="polite"` and flips to a confirmed state exactly when the step
+becomes valid.
+
+The action bar is `position: sticky; bottom: 0`, so `Back`, the live
+requirement status and `Continue` stay reachable on long steps such as
+Subjects (3 questions × 14 options) without scrolling back down. It is the
+only action row on a screen; `ReviewStep` no longer renders its own.
+
 Rules that are now enforced in code:
 
-* `Continue` is disabled until the current step is valid.
+* `Continue` is disabled and greyed out until the current step is valid. The
+  greyed appearance comes from `.btn:disabled` / `.btn[disabled]` in
+  `index.css`; without those rules the button looked clickable while inert.
 * Validation is per question via `minSelections`, plus optional step-wide
   budgets in `CATEGORY_SELECTION_LIMITS`.
 * The Interest step shares one budget of 3–5 selections across its three
@@ -1028,7 +1062,8 @@ src/
 │
 ├── components/
 │   ├── ui/                      Nav, Footer, Loading
-│   ├── questionnaire/           QuestionCard, ProgressIndicator, ReviewStep
+│   ├── questionnaire/           QuestionCard, ProgressIndicator, ReviewStep,
+│   │                             RequirementBanner, StepActionBar
 │   ├── career/                  CareerCard
 │   ├── course/                  CourseCard
 │   ├── institution/             InstitutionCard
@@ -1196,8 +1231,8 @@ engine, and the rendered markup of the questionnaire.
 ## Verification harnesses
 
 ```text
-scripts/verify-questionnaire.ts   36 checks, pure logic
-scripts/verify-render.tsx         31 checks, server-rendered markup
+scripts/verify-questionnaire.ts   51 checks, pure logic + CSS rule assertions
+scripts/verify-render.tsx         53 checks, server-rendered markup
 ```
 
 These are plain scripts with no test framework dependency. They are bundled

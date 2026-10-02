@@ -1,8 +1,10 @@
+import { readFileSync } from 'node:fs'
 import { getQuestionsByCategory, questionnaireQuestions, totalSteps } from '../src/data/questions'
-import { QUESTIONNAIRE_CATEGORIES, type QuestionnaireAnswers, type QuestionnaireQuestion } from '../src/types'
+import { QUESTIONNAIRE_CATEGORIES, REVIEW_CATEGORY, type QuestionnaireAnswers, type QuestionnaireQuestion } from '../src/types'
 import {
   getCategorySelectionCount,
   getFirstIncompleteStep,
+  getStepRequirement,
   getUnansweredQuestions,
   isCategoryComplete,
   isOptionDisabled,
@@ -99,10 +101,36 @@ check('questionnaire is complete', isQuestionnaireComplete(full))
 check('all steps reachable, review unlocked', getFirstIncompleteStep(full) === QUESTIONNAIRE_CATEGORIES.length)
 check('subjects need at least 3', !isCategoryComplete('Subjects', { ...full, 'subject-1': ['Mathematics'] }))
 
+console.log('\n== per-screen requirement text is derived from the data ==')
+const expectedRequirementText: Record<string, string> = {
+  Interest: 'Choose 3-5 interests in total across all 3 questions.',
+  Strengths: 'Choose at least 1 in each of the 2 questions.',
+  Subjects: 'Choose at least 3 in each of the 3 questions.',
+  'Work Preferences': 'Answer all 6 questions.',
+  'Career Goals': 'Choose at least 1 in each of the first 2, then answer the remaining 5.',
+}
+for (const category of QUESTIONNAIRE_CATEGORIES) {
+  const { text } = getStepRequirement(category, full)
+  check(`${category} requirement text`, text === expectedRequirementText[category], `got "${text}"`)
+}
+check('every screen has a non-empty requirement', QUESTIONNAIRE_CATEGORIES.every(c => getStepRequirement(c, full).text.length > 0))
+check('Review requirement text', getStepRequirement(REVIEW_CATEGORY, full).text === 'Check your answers, then submit.')
+check('requirement text is independent of answers', QUESTIONNAIRE_CATEGORIES.every(c => getStepRequirement(c, {}).text === getStepRequirement(c, full).text))
+check('an unmet step reports unmet', QUESTIONNAIRE_CATEGORIES.every(c => !getStepRequirement(c, {}).met))
+check('the requirement flips to met exactly when the step is complete', QUESTIONNAIRE_CATEGORIES.every(c => getStepRequirement(c, full).met === isCategoryComplete(c, full)))
+
+console.log('\n== disabled Continue is styled, not just inert ==')
+const css = readFileSync('src/index.css', 'utf8')
+check('.btn:disabled rule exists', /\.btn:disabled/.test(css))
+check('.btn[disabled] attribute rule exists', /\.btn\[disabled\]/.test(css))
+check('disabled buttons use the not-allowed cursor', /\.btn:disabled\s*,\s*\.btn\[disabled\]\s*\{[\s\S]{0,200}not-allowed/.test(css))
+check('disabled buttons drop their hover fill', /\.btn:disabled:hover[\s\S]{0,200}var\(--color-border\)/.test(css))
+
 console.log('\n== incomplete submission is rejected ==')
 const incomplete = { ...full }
 delete incomplete['goal-5']
 check('missing goal blocks completion', !isQuestionnaireComplete(incomplete))
+check('review is met only once everything is answered', getStepRequirement(REVIEW_CATEGORY, full).met && !getStepRequirement(REVIEW_CATEGORY, incomplete).met)
 
 console.log('\n== recommendations ==')
 const results = calculateRecommendations(full)

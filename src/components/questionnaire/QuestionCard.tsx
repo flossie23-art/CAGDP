@@ -10,7 +10,7 @@ interface QuestionCardProps {
   maxSelections?: number
   isOptionDisabled?: (option: string) => boolean
   isAnswered?: boolean
-  stepRequirement?: string
+  index?: number
 }
 
 export default function QuestionCard({
@@ -23,7 +23,7 @@ export default function QuestionCard({
   maxSelections,
   isOptionDisabled,
   isAnswered = false,
-  stepRequirement,
+  index,
 }: QuestionCardProps) {
   const questionId = `question-${question.replace(/\W+/g, '-').toLowerCase()}`
   const isMultiple = questionType === 'multiple'
@@ -54,9 +54,16 @@ export default function QuestionCard({
       <legend className="sr-only">{question}</legend>
 
       <div className="question-card-header">
-        <h3 id={questionId} style={{ fontWeight: 600, fontSize: '1.125rem' }}>
-          {question}
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+          {index !== undefined && (
+            <span className="question-index" aria-hidden="true">
+              {index}
+            </span>
+          )}
+          <h3 id={questionId} style={{ fontWeight: 600, fontSize: '1.125rem' }}>
+            {question}
+          </h3>
+        </div>
         <span
           style={{
             fontSize: '0.75rem',
@@ -109,7 +116,6 @@ export default function QuestionCard({
       >
         {statusText}
         {atMax ? ' You have reached the maximum for this question.' : ''}
-        {stepRequirement ? ` ${stepRequirement}` : ''}
       </p>
     </fieldset>
   )

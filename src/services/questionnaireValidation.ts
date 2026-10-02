@@ -1,5 +1,10 @@
 import { getCategoryLimit, getQuestionsByCategory, CATEGORY_SELECTION_LIMITS } from '../data/questions'
-import { QUESTIONNAIRE_CATEGORIES, type QuestionnaireAnswers, type QuestionnaireQuestion } from '../types'
+import {
+  QUESTIONNAIRE_CATEGORIES,
+  REVIEW_CATEGORY,
+  type QuestionnaireAnswers,
+  type QuestionnaireQuestion,
+} from '../types'
 
 export function getRequiredCount(question: QuestionnaireQuestion): number {
   if (question.type === 'single') return 1
@@ -36,6 +41,44 @@ export function getUnansweredQuestions(category: string, answers: QuestionnaireA
 export function getFirstIncompleteStep(answers: QuestionnaireAnswers): number {
   const index = QUESTIONNAIRE_CATEGORIES.findIndex(category => !isCategoryComplete(category, answers))
   return index === -1 ? QUESTIONNAIRE_CATEGORIES.length : index
+}
+
+export interface StepRequirement {
+  text: string
+  met: boolean
+}
+
+function describeQuestionRequirement(questions: QuestionnaireQuestion[]): string {
+  const selectable = questions.filter(question => question.type === 'multiple')
+  const single = questions.length - selectable.length
+
+  if (selectable.length > 0 && single > 0) {
+    return `Choose at least 1 in each of the first ${selectable.length}, then answer the remaining ${single}.`
+  }
+  if (single === questions.length) return `Answer all ${questions.length} questions.`
+
+  const minimum = Math.min(...selectable.map(getRequiredCount))
+  return `Choose at least ${minimum} in each of the ${questions.length} questions.`
+}
+
+/**
+ * Plain-language requirement for a whole screen, derived from the question data
+ * rather than hardcoded per step, plus whether the current answers satisfy it.
+ */
+export function getStepRequirement(category: string, answers: QuestionnaireAnswers): StepRequirement {
+  if (category === REVIEW_CATEGORY) {
+    return { text: 'Check your answers, then submit.', met: isQuestionnaireComplete(answers) }
+  }
+
+  const questions = getQuestionsByCategory(category)
+  if (questions.length === 0) return { text: 'This step has no questions.', met: true }
+
+  const limit = getCategoryLimit(category)
+  const text = limit
+    ? `Choose ${limit.min}-${limit.max} ${limit.label} in total across all ${questions.length} questions.`
+    : describeQuestionRequirement(questions)
+
+  return { text, met: isCategoryComplete(category, answers) }
 }
 
 export function isQuestionnaireComplete(answers: QuestionnaireAnswers): boolean {

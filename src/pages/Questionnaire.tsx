@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { useQuestionnaire, STEP_LABELS } from '../contexts/QuestionnaireContext'
 import { questionnaireQuestions } from '../data/questions'
 import { QUESTIONNAIRE_CATEGORIES, type QuestionnaireCategory } from '../types'
+import { getStepRequirement } from '../services/questionnaireValidation'
 import ProgressIndicator from '../components/questionnaire/ProgressIndicator'
 import QuestionCard from '../components/questionnaire/QuestionCard'
 import ReviewStep from '../components/questionnaire/ReviewStep'
+import RequirementBanner from '../components/questionnaire/RequirementBanner'
+import StepActionBar from '../components/questionnaire/StepActionBar'
 
 export default function Questionnaire() {
   const {
@@ -34,8 +37,9 @@ export default function Questionnaire() {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const isReviewStep = currentStep === totalSteps - 1
   const categoryQuestions = getQuestions(currentCategory)
+  const requirement = getStepRequirement(currentCategory, answers)
   const categoryLimit = getCategoryLimit(currentCategory)
-  const categorySelected = getCategorySelectionCount(currentCategory)
+  const selectedCount = getCategorySelectionCount(currentCategory)
   const unanswered = getUnanswered(currentCategory)
 
   useEffect(() => {
@@ -52,9 +56,18 @@ export default function Questionnaire() {
     if (canProceed) nextStep()
   }
 
-  const stepRequirement = categoryLimit
-    ? `Across this step choose ${categoryLimit.min}-${categoryLimit.max} ${categoryLimit.label} in total.`
-    : undefined
+  const screenTitle = isReviewStep ? 'Review Your Answers' : currentCategory
+  const screenPurpose = isReviewStep
+    ? 'Check your answers and edit anything you want to change before we work out your recommendations.'
+    : 'One screen at a time. The next step unlocks once this one is complete.'
+
+  const statusText = canProceed
+    ? '✓ Step complete'
+    : unanswered.length > 0
+      ? `Select ${unanswered.length} more to continue`
+      : categoryLimit
+        ? `Choose ${Math.max(1, categoryLimit.min - selectedCount)} more ${categoryLimit.label}`
+        : 'Keep going'
 
   return (
     <div className="container" style={{ maxWidth: '800px' }}>
@@ -74,6 +87,19 @@ export default function Questionnaire() {
         onStepClick={goToStep}
       />
 
+      <p className="step-eyebrow">
+        Step {currentStep + 1} of {totalSteps} · {STEP_LABELS[currentStep]}
+      </p>
+
+      <h2 ref={headingRef} tabIndex={-1} style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+        {screenTitle}
+      </h2>
+      <p style={{ color: 'var(--color-muted)', marginBottom: '1rem' }}>{screenPurpose}</p>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <RequirementBanner text={requirement.text} met={requirement.met} />
+      </div>
+
       {isReviewStep ? (
         <ReviewStep
           answers={answers}
@@ -81,89 +107,42 @@ export default function Questionnaire() {
           categories={QUESTIONNAIRE_CATEGORIES}
           canSubmit={canProceed}
           onEditCategory={category => goToStep(QUESTIONNAIRE_CATEGORIES.indexOf(category as QuestionnaireCategory))}
-          onBack={previousStep}
-          onSubmit={handleContinue}
         />
       ) : (
-        <div>
-          <h2 ref={headingRef} tabIndex={-1} style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            {currentCategory}
-          </h2>
-
-          {categoryLimit && (
-            <p
-              aria-live="polite"
-              style={{ color: 'var(--color-muted)', fontSize: '0.875rem', marginBottom: '1rem' }}
-            >
-              Choose {categoryLimit.min}-{categoryLimit.max} {categoryLimit.label} in total. You have
-              selected {categorySelected}.
-            </p>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {categoryQuestions.map(question => (
-              <QuestionCard
-                key={question.id}
-                question={question.question}
-                options={question.options}
-                selectedOptions={answers[question.id] ?? []}
-                onToggle={option => toggleOption(question, option)}
-                questionType={question.type}
-                minSelections={question.minSelections}
-                maxSelections={question.maxSelections}
-                isOptionDisabled={option => isOptionDisabled(question, option)}
-                isAnswered={isQuestionAnswered(question.id)}
-                stepRequirement={stepRequirement}
-              />
-            ))}
-          </div>
-
-          <div aria-live="polite" style={{ minHeight: '1.5rem', marginTop: '0.75rem' }}>
-            {unanswered.length > 0 && (
-              <p style={{ color: 'var(--color-error)', fontSize: '0.875rem', fontWeight: 600 }}>
-                {unanswered.length === 1
-                  ? 'Answer the remaining question to continue: '
-                  : `Answer the remaining ${unanswered.length} questions to continue: `}
-                {unanswered.map(item => item.question.question).join(' · ')}
-              </p>
-            )}
-            {unanswered.length === 0 && categoryLimit && (
-              <p style={{ color: 'var(--color-success)', fontSize: '0.875rem', fontWeight: 600 }}>
-                ✓ Step complete. You selected {categorySelected} {categoryLimit.label}.
-              </p>
-            )}
-            {unanswered.length === 0 && !categoryLimit && (
-              <p style={{ color: 'var(--color-success)', fontSize: '0.875rem', fontWeight: 600 }}>
-                ✓ Step complete.
-              </p>
-            )}
-          </div>
-
-          <div className="flex-between" style={{ marginTop: '1.5rem' }}>
-            {currentStep > 0 ? (
-              <button type="button" className="btn btn-outline" onClick={previousStep}>
-                Back
-              </button>
-            ) : (
-              <span />
-            )}
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleContinue}
-              disabled={!canProceed}
-            >
-              Continue
-            </button>
-          </div>
-
-          <div style={{ marginTop: '1rem' }}>
-            <button type="button" className="btn btn-outline btn-sm" onClick={resetQuestionnaire}>
-              Start over
-            </button>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {categoryQuestions.map((question, position) => (
+            <QuestionCard
+              key={question.id}
+              index={position + 1}
+              question={question.question}
+              options={question.options}
+              selectedOptions={answers[question.id] ?? []}
+              onToggle={option => toggleOption(question, option)}
+              questionType={question.type}
+              minSelections={question.minSelections}
+              maxSelections={question.maxSelections}
+              isOptionDisabled={option => isOptionDisabled(question, option)}
+              isAnswered={isQuestionAnswered(question.id)}
+            />
+          ))}
         </div>
       )}
+
+      <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+        <button type="button" className="btn btn-outline btn-sm" onClick={resetQuestionnaire}>
+          Start over
+        </button>
+      </div>
+
+      <StepActionBar
+        showBack={currentStep > 0}
+        canContinue={canProceed}
+        statusText={statusText}
+        statusMet={canProceed}
+        continueLabel={isReviewStep ? 'Submit & See Results' : 'Continue'}
+        onBack={previousStep}
+        onContinue={handleContinue}
+      />
     </div>
   )
 }

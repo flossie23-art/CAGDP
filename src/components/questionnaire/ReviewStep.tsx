@@ -6,8 +6,6 @@ interface ReviewStepProps {
   questions: QuestionnaireQuestion[]
   categories: readonly string[]
   onEditCategory: (category: string) => void
-  onBack: () => void
-  onSubmit: () => void
   canSubmit: boolean
 }
 
@@ -16,17 +14,10 @@ export default function ReviewStep({
   questions,
   categories,
   onEditCategory,
-  onBack,
-  onSubmit,
   canSubmit,
 }: ReviewStepProps) {
   return (
     <div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Review Your Answers</h2>
-      <p style={{ color: 'var(--color-muted)', marginBottom: '1.5rem' }}>
-        Check your answers and edit anything you want to change before submitting.
-      </p>
-
       {categories.map(category => {
         const categoryQuestions = questions.filter(question => question.category === category)
         return (
@@ -83,15 +74,6 @@ export default function ReviewStep({
           Some required questions are still unanswered. Use the Edit buttons above to complete them.
         </p>
       )}
-
-      <div className="flex-between" style={{ marginTop: '2rem' }}>
-        <button type="button" className="btn btn-outline" onClick={onBack}>
-          Back
-        </button>
-        <button type="button" className="btn btn-primary" onClick={onSubmit} disabled={!canSubmit}>
-          Submit &amp; See Results
-        </button>
-      </div>
     </div>
   )
 }
